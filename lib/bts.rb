@@ -20,7 +20,9 @@ class Bts
 
   def initialize keyword
     Capybara.register_driver :poltergeist do |app|
-      Capybara::Poltergeist::Driver.new(app, js_errors: false)
+      Capybara::Poltergeist::Driver.new(
+        app, js_errors: false, phantomjs_options: ['--load-images=no']
+      )
     end
 
     Capybara.default_driver = :poltergeist
@@ -33,7 +35,7 @@ class Bts
   def do_search
     browser.visit URL
     fill_in_keyword
-    browser.click_on 'Search'
+    browser.find_button('Search').trigger('click')
   end
 
   def fill_in_keyword
