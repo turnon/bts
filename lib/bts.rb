@@ -33,6 +33,11 @@ class Bts
   end
 
   def do_search
+    get_hash_url
+    fetch_others_pages
+  end
+
+  def get_hash_url
     browser.visit URL
     fill_in_keyword
     browser.find_button('Search').trigger('click')
@@ -45,6 +50,25 @@ class Bts
     sleep 3
     @tried += 1
     retry
+  end
+
+  def fetch_others_pages
+    browser.has_css? '.pagination'
+    collect_result
+    hash, type = browser.current_url.split('/1/0/')
+    (2..([10, max_page].min)).each do |page|
+      next_page = [hash, page, 0, type].join('/')
+      browser.visit next_page
+      collect_result
+    end
+  end
+
+  def collect_result
+    puts browser.current_url
+  end
+
+  def max_page
+    browser.all('.pagination span')[0].text.gsub(/[^\d]/, '').to_i
   end
 
   def method_missing *args
