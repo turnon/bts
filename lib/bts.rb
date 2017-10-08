@@ -1,12 +1,13 @@
 require "bts/version"
 require 'capybara/poltergeist'
+require 'page_by_page'
 require 'pry'
 
 class Bts
 
   URL =  'http://btkitty.pet/'
 
-  attr_reader :browser, :keyword
+  attr_reader :browser, :keyword, :nodes
 
   class << self
     def search keyword
@@ -33,6 +34,11 @@ class Bts
   end
 
   def do_search
+    get_hash_url
+    page_by_page
+  end
+
+  def get_hash_url
     browser.visit URL
     fill_in_keyword
     browser.find_button('Search').trigger('click')
@@ -45,6 +51,14 @@ class Bts
     sleep 3
     @tried += 1
     retry
+  end
+
+  def page_by_page
+    @nodes = PageByPage.fetch(
+      url: browser.current_url.gsub(/\/1\/0\//, "/<%= n %>/#{0}/"),
+      selector: '.list-con',
+      to: 20
+    )
   end
 
   def method_missing *args
