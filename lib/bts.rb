@@ -1,4 +1,5 @@
 require "bts/version"
+require "bts/item"
 require 'capybara/poltergeist'
 require 'pry'
 
@@ -6,7 +7,7 @@ class Bts
 
   URL =  'http://btkitty.pet/'
 
-  attr_reader :browser, :keyword
+  attr_reader :browser, :keyword, :next_page, :result
 
   class << self
     def search keyword
@@ -30,20 +31,60 @@ class Bts
     @browser = Capybara.current_session
     @keyword = keyword
     @tried = 0
+    @result = []
   end
 
   def do_search
+    get_hash_url
+    fetch_others_pages
+  end
+
+  def get_hash_url
     browser.visit URL
     fill_in_keyword
     browser.find_button('Search').trigger('click')
   end
 
   def fill_in_keyword
-    browser.fill_in 'keyword', with: keyword
+    try do
+      browser.fill_in 'keyword', with: keyword
+    end
+  end
+
+  def fetch_others_pages
+    browser.has_css? '.pagination'
+    collect_result
+    hash, type = browser.current_url.split('/1/0/')
+    (2..([10, max_page].min)).each do |page|
+      @next_page = [hash, page, 0, type].join('/')
+      visit_next_page
+    end
+  end
+
+  def visit_next_page
+    try do
+      browser.visit next_page
+      raise "redirected to #{browser.current_url}" unless browser.current_url == next_page
+      collect_result
+    end
+  end
+
+  def collect_result
+    browser.all('.list-con').each do |element|
+      result << Item.new(element)
+    end
+  end
+
+  def max_page
+    browser.all('.pagination span')[0].text.gsub(/[^\d]/, '').to_i
+  end
+
+  def try n = 3, interval: 3
+    yield
   rescue => e
-    raise e if @tried > 10
-    sleep 3
-    @tried += 1
+    raise e if n == 0
+    sleep interval
+    n -= 1
     retry
   end
 
