@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+</head>
+<body>
+<table>
+  <tr>
+    <th>rank</th>
+    <th>link</th>
+    <th>magnet</th>
+    <th>added</th>
+    <th>size</th>
+    <th>files</th>
+    <th>popularity</th>
+  </tr>
+  <% result.each do |item| %>
+    <tr>
+      <td><%= item.rank %></td>
+      <td><a href='<%= item.rank %>'><%= item.title %></a></td>
+      <td><a href='<%= item.magnet_link %>'>magnet</a></td>
+      <td><%= item.added %></td>
+      <td><%= item.size %></td>
+      <td><%= item.files %></td>
+      <td><%= item.popularity %></td>
+    </tr>
+  <% end %>
+</table>
+</body>
+</html>

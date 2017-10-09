@@ -1,11 +1,13 @@
 require "bts/version"
 require "bts/item"
 require 'capybara/poltergeist'
+require 'erb'
 require 'pry'
 
 class Bts
 
   URL =  'http://btkitty.pet/'
+  TEMPLATE = ERB.new(File.read(File.join(__dir__, 'bts', 'table.html.erb')))
 
   attr_reader :browser, :keyword, :next_page, :result
 
@@ -37,6 +39,7 @@ class Bts
   def do_search
     get_hash_url
     fetch_others_pages
+    print
   end
 
   def get_hash_url
@@ -72,6 +75,13 @@ class Bts
   def collect_result
     browser.all('.list-con').each do |element|
       result << Item.new(element)
+    end
+  end
+
+  def print
+    output_path = File.join(__dir__, '..', 'result.html')
+    File.open(output_path, 'w') do |f|
+      f.puts TEMPLATE.result(binding)
     end
   end
 
