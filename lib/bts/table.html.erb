@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/css/theme.dropbox.min.css">
+    <style>
+      body{overflow-y: scroll;}
+      tr th{width: 7%;}
+      tr th:nth-child(1){width: 5%;}
+      tr th:nth-child(2){width: 55%;}
+      #myTable{max-width: 1600px; margin: auto;}
+    </style>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.widgets.min.js"></script>
+  </head>
+  <body>
+    <table id="myTable" class="tablesorter">
+      <thead>
+        <tr>
+          <th>rank</th>
+          <th>link</th>
+          <th>magnet</th>
+          <th>added</th>
+          <th>size</th>
+          <th>files</th>
+          <th>popularity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% result.each do |item| %>
+          <tr>
+            <td><%= item.rank %></td>
+            <td><a href='<%= item.link %>'><%= item.title %></a></td>
+            <td><a href='<%= item.magnet_link %>'>magnet</a></td>
+            <td><%= item.added %></td>
+            <td><%= item.size %></td>
+            <td><%= item.files %></td>
+            <td><%= item.popularity %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <script>
+      $(function() {
+          var units = {
+              'B': 1,
+              'KB': 1024,
+              'MB': 1024 * 1024,
+              'GB': 1024 * 1024 * 1024,
+              'TB': 1024 * 1024 * 1024 * 1024
+          };
+          $("#myTable").tablesorter({
+              theme: 'dropbox',
+              headerTemplate: '{content}{icon}',
+              widgets: ['filter'],
+              textExtraction: {
+                  4 : function(node, table) {
+                        var size = $(node).attr(table.config.textAttribute) || node.textContent || node.innerText || $(node).text();
+                        var num = parseFloat(size);
+                        var unit = size.replace(/.*\s/, '');
+                        return num * units[unit] + unit;
+                  }
+              }
+          });
+      });
+    </script>
+  </body>
+</html>
