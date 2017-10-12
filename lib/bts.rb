@@ -12,8 +12,8 @@ class Bts
   attr_reader :browser, :keyword, :next_page, :result
 
   class << self
-    def search keyword
-      bts = new keyword
+    def search(keyword, opt = {})
+      bts = new keyword, opt
       bts.do_search
       binding.pry
     rescue => e
@@ -21,7 +21,9 @@ class Bts
     end
   end
 
-  def initialize keyword
+  def initialize(keyword, opt = {})
+    raise 'must specify output path' unless opt[:output]
+
     Capybara.register_driver :poltergeist do |app|
       Capybara::Poltergeist::Driver.new(
         app, js_errors: false, phantomjs_options: ['--load-images=no']
@@ -34,6 +36,7 @@ class Bts
     @keyword = keyword
     @tried = 0
     @result = []
+    @output = opt[:output]
   end
 
   def do_search
@@ -79,8 +82,7 @@ class Bts
   end
 
   def print
-    output_path = File.join(__dir__, '..', 'result.html')
-    File.open(output_path, 'w') do |f|
+    File.open(@output.expand_path, 'w') do |f|
       f.puts TEMPLATE.result(binding)
     end
   end
