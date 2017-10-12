@@ -15,9 +15,8 @@ class Bts
     def search(keyword, opt = {})
       bts = new keyword, opt
       bts.do_search
-      binding.pry
     rescue => e
-      binding.pry
+      STDERR.puts "ERROR: #{e}", e.backtrace
     end
   end
 
