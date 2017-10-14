@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'bts'
+require 'slop'
+
+opts = Slop.parse do |o|
+
+  o.string '-o', '--output', 'output path'
+
+  o.integer '-n', '--number', 'page number'
+
+  o.bool '-r', '--rel', 'relevance'
+  o.bool '-a', '--add', 'added'
+  o.bool '-s', '--siz', 'size'
+  o.bool '-f', '--fil', 'files'
+  o.bool '-p', '--pop', 'popularity'
+
+  o.bool '-t', '--trace', 'print urls'
+
+end
+
+keyword = opts.arguments.join(' ')
+options = opts.to_hash
+
+Bts.search keyword, options

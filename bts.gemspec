@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "capybara"
   spec.add_dependency "poltergeist"
+  spec.add_dependency "slop", '> 4.0'
 end

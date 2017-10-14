@@ -8,20 +8,22 @@ class Bts
 
   URL =  'http://btkitty.pet/'
   TEMPLATE = ERB.new(File.read(File.join(__dir__, 'bts', 'table.html.erb')))
+  ORDER = %i{rel add siz fil pop}
 
   attr_reader :browser, :keyword, :next_page, :result
 
   class << self
-    def search keyword
-      bts = new keyword
+    def search(keyword, opt = {})
+      bts = new keyword, opt
       bts.do_search
-      binding.pry
     rescue => e
-      binding.pry
+      STDERR.puts "ERROR: #{e}", e.backtrace
     end
   end
 
-  def initialize keyword
+  def initialize(keyword, opt = {})
+    raise 'must specify output path' unless opt[:output]
+
     Capybara.register_driver :poltergeist do |app|
       Capybara::Poltergeist::Driver.new(
         app, js_errors: false, phantomjs_options: ['--load-images=no']
@@ -34,6 +36,10 @@ class Bts
     @keyword = keyword
     @tried = 0
     @result = []
+    @output = opt[:output]
+    @page_number = opt[:number]
+    @log = opt[:trace]
+    @opt = opt
   end
 
   def do_search
@@ -56,12 +62,20 @@ class Bts
 
   def fetch_others_pages
     browser.has_css? '.pagination'
-    collect_result
+    collect_result if default_order?
     hash, type = browser.current_url.split('/1/0/')
-    (2..([10, max_page].min)).each do |page|
-      @next_page = [hash, page, 0, type].join('/')
+    (another_page..last_page).each do |page|
+      @next_page = [hash, page, order, type].join('/')
       visit_next_page
     end
+  end
+
+  def another_page
+    default_order? ? 2 : 1
+  end
+
+  def last_page
+    [page_number, max_page].min
   end
 
   def visit_next_page
@@ -73,20 +87,44 @@ class Bts
   end
 
   def collect_result
+    log!
     browser.all('.list-con').each do |element|
       result << Item.new(element)
     end
   end
 
   def print
-    output_path = File.join(__dir__, '..', 'result.html')
     File.open(output_path, 'w') do |f|
       f.puts TEMPLATE.result(binding)
     end
   end
 
+  def output_path
+    Pathname.new(@output).expand_path
+  end
+
+  def page_number
+    @page_number || 10
+  end
+
   def max_page
     browser.all('.pagination span')[0].text.gsub(/[^\d]/, '').to_i
+  end
+
+  def default_order?
+    order == 0
+  end
+
+  def order
+    @order ||= (
+      order_name = @opt.find{ |o, tf| ORDER.include?(o) && tf }
+      order_name = (order_name ? order_name[0] : ORDER.first)
+      ORDER.index order_name
+    )
+  end
+
+  def log!
+    puts browser.current_url if @log
   end
 
   def try n = 3, interval: 3
