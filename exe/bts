@@ -1,16 +1,8 @@
 require 'bts'
 require 'slop'
 
-module Slop
-  class PathOption < Option
-    def call value
-      Pathname.new(value)
-    end
-  end
-end
-
 opts = Slop.parse do |o|
-  o.path '-o', '--output', 'output path'
+  o.string '-o', '--output', 'output path'
   o.integer '-n', '--number', 'page number'
 end
 

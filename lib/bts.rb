@@ -82,9 +82,13 @@ class Bts
   end
 
   def print
-    File.open(@output.expand_path, 'w') do |f|
+    File.open(output_path, 'w') do |f|
       f.puts TEMPLATE.result(binding)
     end
+  end
+
+  def output_path
+    Pathname.new(@output).expand_path
   end
 
   def page_number
