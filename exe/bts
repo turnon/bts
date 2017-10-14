@@ -11,6 +11,7 @@ end
 
 opts = Slop.parse do |o|
   o.path '-o', '--output', 'output path'
+  o.integer '-n', '--number', 'page number'
 end
 
 keyword = opts.arguments.join(' ')

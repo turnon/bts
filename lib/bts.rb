@@ -36,6 +36,7 @@ class Bts
     @tried = 0
     @result = []
     @output = opt[:output]
+    @page_number = opt[:number]
   end
 
   def do_search
@@ -60,7 +61,7 @@ class Bts
     browser.has_css? '.pagination'
     collect_result
     hash, type = browser.current_url.split('/1/0/')
-    (2..([10, max_page].min)).each do |page|
+    (2..([page_number, max_page].min)).each do |page|
       @next_page = [hash, page, 0, type].join('/')
       visit_next_page
     end
@@ -84,6 +85,10 @@ class Bts
     File.open(@output.expand_path, 'w') do |f|
       f.puts TEMPLATE.result(binding)
     end
+  end
+
+  def page_number
+    @page_number || 10
   end
 
   def max_page
