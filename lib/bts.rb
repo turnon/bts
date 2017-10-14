@@ -8,6 +8,7 @@ class Bts
 
   URL =  'http://btkitty.pet/'
   TEMPLATE = ERB.new(File.read(File.join(__dir__, 'bts', 'table.html.erb')))
+  ORDER = %i{rel add siz fil pop}
 
   attr_reader :browser, :keyword, :next_page, :result
 
@@ -37,6 +38,7 @@ class Bts
     @result = []
     @output = opt[:output]
     @page_number = opt[:number]
+    @opt = opt
   end
 
   def do_search
@@ -59,12 +61,20 @@ class Bts
 
   def fetch_others_pages
     browser.has_css? '.pagination'
-    collect_result
+    collect_result if default_order?
     hash, type = browser.current_url.split('/1/0/')
-    (2..([page_number, max_page].min)).each do |page|
-      @next_page = [hash, page, 0, type].join('/')
+    (another_page..last_page).each do |page|
+      @next_page = [hash, page, order, type].join('/')
       visit_next_page
     end
+  end
+
+  def another_page
+    default_order? ? 2 : 1
+  end
+
+  def last_page
+    [page_number, max_page].min
   end
 
   def visit_next_page
@@ -97,6 +107,18 @@ class Bts
 
   def max_page
     browser.all('.pagination span')[0].text.gsub(/[^\d]/, '').to_i
+  end
+
+  def default_order?
+    order == 0
+  end
+
+  def order
+    @order ||= (
+      order_name = @opt.find{ |o, tf| ORDER.include?(o) && tf }
+      order_name = (order_name ? order_name[0] : ORDER.first)
+      ORDER.index order_name
+    )
   end
 
   def try n = 3, interval: 3
