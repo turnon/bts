@@ -13,6 +13,8 @@ opts = Slop.parse do |o|
   o.bool '-f', '--fil', 'files'
   o.bool '-p', '--pop', 'popularity'
 
+  o.bool '-t', '--trace', 'print urls'
+
 end
 
 keyword = opts.arguments.join(' ')

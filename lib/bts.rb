@@ -38,6 +38,7 @@ class Bts
     @result = []
     @output = opt[:output]
     @page_number = opt[:number]
+    @log = opt[:trace]
     @opt = opt
   end
 
@@ -86,6 +87,7 @@ class Bts
   end
 
   def collect_result
+    log!
     browser.all('.list-con').each do |element|
       result << Item.new(element)
     end
@@ -119,6 +121,10 @@ class Bts
       order_name = (order_name ? order_name[0] : ORDER.first)
       ORDER.index order_name
     )
+  end
+
+  def log!
+    puts browser.current_url if @log
   end
 
   def try n = 3, interval: 3
