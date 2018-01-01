@@ -22,7 +22,9 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+$ bts RUNBKK -a -o ./runbkk_2.html -t -i 5 -n 99
+```
 
 ## Development
 

@@ -6,7 +6,7 @@ require 'pry'
 
 class Bts
 
-  URL =  'http://btkitty.pet/'
+  URL =  'http://cnbtkitty.com/'
   TEMPLATE = ERB.new(File.read(File.join(__dir__, 'bts', 'table.html.erb')))
   ORDER = %i{rel add siz fil pop}
 
@@ -39,12 +39,14 @@ class Bts
     @output = opt[:output]
     @page_number = opt[:number]
     @log = opt[:trace]
+    @interval = opt[:interval]
     @opt = opt
   end
 
   def do_search
     get_hash_url
     fetch_others_pages
+  ensure
     print
   end
 
@@ -80,6 +82,7 @@ class Bts
 
   def visit_next_page
     try do
+      sleep @interval if @interval
       browser.visit next_page
       raise "redirected to #{browser.current_url}" unless browser.current_url == next_page
       collect_result

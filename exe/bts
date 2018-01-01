@@ -9,6 +9,8 @@ opts = Slop.parse do |o|
 
   o.integer '-n', '--number', 'page number'
 
+  o.integer '-i', '--interval', 'sleep for i seconds'
+
   o.bool '-r', '--rel', 'relevance'
   o.bool '-a', '--add', 'added'
   o.bool '-s', '--siz', 'size'
